@@ -32,13 +32,12 @@ public class JobController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Job> findById(@PathVariable Long id) {
-        var job = jobService.findById(id);
-        if (job == null) {
+    public ResponseEntity<JobWithCompanyDto> findById(@PathVariable Long id) {
+        var jobWithCompanyDto = jobService.findById(id);
+        if (jobWithCompanyDto == null) {
             return ResponseEntity.notFound().build();
         }
-//        return ResponseEntity.ok(job);
-        return new ResponseEntity<>(job, HttpStatus.OK);
+        return new ResponseEntity<>(jobWithCompanyDto, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
