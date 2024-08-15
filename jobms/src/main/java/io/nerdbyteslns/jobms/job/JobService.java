@@ -1,13 +1,13 @@
 package io.nerdbyteslns.jobms.job;
 
-import io.nerdbyteslns.jobms.job.dto.JobWithCompanyDto;
+import io.nerdbyteslns.jobms.job.dto.JobDto;
 
 import java.util.List;
 
 public interface JobService {
-    List<JobWithCompanyDto> findAll();
+    List<JobDto> findAll();
     void create(Job job);
-    JobWithCompanyDto findById(Long id);
+    JobDto findById(Long id);
     boolean delete(Long id);
     boolean update(Long id, Job job);
 }

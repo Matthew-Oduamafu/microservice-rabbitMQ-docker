@@ -1,6 +1,6 @@
 package io.nerdbyteslns.jobms.job;
 
-import io.nerdbyteslns.jobms.job.dto.JobWithCompanyDto;
+import io.nerdbyteslns.jobms.job.dto.JobDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +21,7 @@ public class JobController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<JobWithCompanyDto>> findAll() {
+    public ResponseEntity<List<JobDto>> findAll() {
         return new ResponseEntity<>(jobService.findAll(), HttpStatus.OK);
     }
 
@@ -32,12 +32,12 @@ public class JobController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<JobWithCompanyDto> findById(@PathVariable Long id) {
-        var jobWithCompanyDto = jobService.findById(id);
-        if (jobWithCompanyDto == null) {
+    public ResponseEntity<JobDto> findById(@PathVariable Long id) {
+        var jobDto = jobService.findById(id);
+        if (jobDto == null) {
             return ResponseEntity.notFound().build();
         }
-        return new ResponseEntity<>(jobWithCompanyDto, HttpStatus.OK);
+        return new ResponseEntity<>(jobDto, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

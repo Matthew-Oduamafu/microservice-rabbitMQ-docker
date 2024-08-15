@@ -1,8 +1,11 @@
 package io.nerdbyteslns.jobms.job.dto;
 
 import io.nerdbyteslns.jobms.external.Company;
+import io.nerdbyteslns.jobms.external.Review;
 
-public class JobWithCompanyDto {
+import java.util.List;
+
+public class JobDto {
     private Long id;
     private String title;
     private String description;
@@ -10,11 +13,12 @@ public class JobWithCompanyDto {
     private String maxSalary;
     private String location;
     private Company company;
+    private List<Review> reviews;
 
-    public JobWithCompanyDto() {
+    public JobDto() {
     }
 
-    public JobWithCompanyDto(Long id, String title, String description, String minSalary, String maxSalary, String location, Company company) {
+    public JobDto(Long id, String title, String description, String minSalary, String maxSalary, String location, Company company, List<Review> reviews) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -22,6 +26,7 @@ public class JobWithCompanyDto {
         this.maxSalary = maxSalary;
         this.location = location;
         this.company = company;
+        this.reviews = reviews;
     }
 
     public Long getId() {
@@ -78,5 +83,13 @@ public class JobWithCompanyDto {
 
     public void setCompany(Company company) {
         this.company = company;
+    }
+
+    public List<Review> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(List<Review> reviews) {
+        this.reviews = reviews;
     }
 }

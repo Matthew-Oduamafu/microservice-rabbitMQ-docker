@@ -2,11 +2,15 @@ package io.nerdbyteslns.jobms.job.impl;
 
 
 import io.nerdbyteslns.jobms.external.Company;
+import io.nerdbyteslns.jobms.external.Review;
 import io.nerdbyteslns.jobms.job.Job;
 import io.nerdbyteslns.jobms.job.JobRepository;
 import io.nerdbyteslns.jobms.job.JobService;
-import io.nerdbyteslns.jobms.job.dto.JobWithCompanyDto;
+import io.nerdbyteslns.jobms.job.dto.JobDto;
 import io.nerdbyteslns.jobms.job.mapper.JobMapper;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -26,22 +30,29 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public List<JobWithCompanyDto> findAll() {
+    public List<JobDto> findAll() {
         var jobs = jobRepository.findAll();
 
         return jobs.stream().map(job -> {
-            String url = "http://company-microservice:8081/companies/" + job.getCompanyId();
+            String companyUrl = "http://company-microservice:8081/companies/" + job.getCompanyId();
+            String reviewUrl = "http://review-microservice:8083/reviews?companyId=" + job.getCompanyId();
             Company company;
+            List<Review> reviews;
             try {
-                company = restTemplate.getForObject(url, Company.class);
+                company = restTemplate.getForObject(companyUrl, Company.class);
+
+                ResponseEntity<List<Review>> reviewResponse = restTemplate.exchange(reviewUrl, HttpMethod.GET, null, new ParameterizedTypeReference<List<Review>>() {
+                });
+
+                reviews = reviewResponse.getBody();
             } catch (RestClientException e) {
                 if (e.getMessage().contains("404")) {
                     System.out.println("Company not found");
-                    return JobMapper.toJobWithCompanyDto(job);
+                    return JobMapper.toJobDto(job);
                 }
                 throw e;
             }
-            return JobMapper.toJobWithCompanyDto(job, company);
+            return JobMapper.toJobDto(job, company, reviews);
         }).toList();
     }
 
@@ -51,17 +62,21 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public JobWithCompanyDto findById(Long id) {
+    public JobDto findById(Long id) {
         var job = jobRepository.findById(id).orElse(null);
         if (job == null) {
             return null;
         }
-        JobWithCompanyDto jobWithCompanyDto = JobMapper.toJobWithCompanyDto(job);
+        JobDto jobDto = JobMapper.toJobDto(job);
         Company company = null;
         try {
             String url = "http://company-microservice:8081/companies/" + job.getCompanyId();
             company = restTemplate.getForObject(url, Company.class);
-            jobWithCompanyDto.setCompany(company);
+            ResponseEntity<List<Review>> reviewResponse = restTemplate.exchange("http://review-microservice:8083/reviews?companyId=" + job.getCompanyId(), HttpMethod.GET, null, new ParameterizedTypeReference<List<Review>>() {
+            });
+
+            jobDto.setCompany(company);
+            jobDto.setReviews(reviewResponse.getBody());
         } catch (RestClientException e) {
             if (e.getMessage().contains("404")) {
                 System.out.println("Company not found");
@@ -69,7 +84,7 @@ public class JobServiceImpl implements JobService {
                 throw e;
             }
         }
-        return jobWithCompanyDto;
+        return jobDto;
     }
 
     @Override
