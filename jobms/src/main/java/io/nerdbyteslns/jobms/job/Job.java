@@ -79,6 +79,9 @@ public class Job {
     }
 
     public Long getCompanyId() {
+        if(companyId == null) {
+            return 0L;
+        }
         return companyId;
     }
 
