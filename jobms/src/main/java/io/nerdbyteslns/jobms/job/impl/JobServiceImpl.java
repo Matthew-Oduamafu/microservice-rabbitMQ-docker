@@ -1,11 +1,14 @@
 package io.nerdbyteslns.jobms.job.impl;
 
 
+import feign.FeignException;
 import io.nerdbyteslns.jobms.external.Company;
 import io.nerdbyteslns.jobms.external.Review;
 import io.nerdbyteslns.jobms.job.Job;
 import io.nerdbyteslns.jobms.job.JobRepository;
 import io.nerdbyteslns.jobms.job.JobService;
+import io.nerdbyteslns.jobms.job.clients.CompanyClients;
+import io.nerdbyteslns.jobms.job.clients.ReviewClient;
 import io.nerdbyteslns.jobms.job.dto.JobDto;
 import io.nerdbyteslns.jobms.job.mapper.JobMapper;
 import org.springframework.core.ParameterizedTypeReference;
@@ -23,10 +26,14 @@ public class JobServiceImpl implements JobService {
 
     private final JobRepository jobRepository;
     private final RestTemplate restTemplate;
+    private final CompanyClients companyClients;
+    private final ReviewClient reviewClient;
 
-    public JobServiceImpl(JobRepository jobRepository, RestTemplate restTemplate) {
+    public JobServiceImpl(JobRepository jobRepository, RestTemplate restTemplate, CompanyClients companyClients, ReviewClient reviewClient) {
         this.jobRepository = jobRepository;
         this.restTemplate = restTemplate;
+        this.companyClients = companyClients;
+        this.reviewClient = reviewClient;
     }
 
     @Override
@@ -34,18 +41,13 @@ public class JobServiceImpl implements JobService {
         var jobs = jobRepository.findAll();
 
         return jobs.stream().map(job -> {
-            String companyUrl = "http://company-microservice:8081/companies/" + job.getCompanyId();
-            String reviewUrl = "http://review-microservice:8083/reviews?companyId=" + job.getCompanyId();
             Company company;
             List<Review> reviews;
-            try {
-                company = restTemplate.getForObject(companyUrl, Company.class);
 
-                ResponseEntity<List<Review>> reviewResponse = restTemplate.exchange(reviewUrl, HttpMethod.GET, null, new ParameterizedTypeReference<List<Review>>() {
-                });
-
-                reviews = reviewResponse.getBody();
-            } catch (RestClientException e) {
+            try{
+                company = companyClients.getCompanyById(job.getCompanyId());
+                reviews = reviewClient.getReviewsByCompanyId(job.getCompanyId());
+            } catch (FeignException e) {
                 if (e.getMessage().contains("404")) {
                     System.out.println("Company not found");
                     return JobMapper.toJobDto(job);
