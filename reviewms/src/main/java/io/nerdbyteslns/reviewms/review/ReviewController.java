@@ -1,6 +1,7 @@
 package io.nerdbyteslns.reviewms.review;
 
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("reviews")
+@Tag(name = "Reviews", description = "Reviews API")
 public class ReviewController {
 
     private final ReviewService reviewService;

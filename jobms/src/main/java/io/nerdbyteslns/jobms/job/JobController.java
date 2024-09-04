@@ -1,6 +1,7 @@
 package io.nerdbyteslns.jobms.job;
 
 import io.nerdbyteslns.jobms.job.dto.JobDto;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/jobs")
+@Tag(name = "Job", description = "Job API")
 public class JobController {
 
     private final JobService jobService;

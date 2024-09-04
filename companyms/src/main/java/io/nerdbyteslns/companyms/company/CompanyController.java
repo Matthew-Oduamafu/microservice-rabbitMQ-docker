@@ -1,6 +1,7 @@
 package io.nerdbyteslns.companyms.company;
 
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/companies")
+@Tag(name = "Company", description = "Company API")
 public class CompanyController {
 
     private final CompanyService companyService;

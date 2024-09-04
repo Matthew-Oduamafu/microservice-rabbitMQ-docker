@@ -1,0 +1,17 @@
+spring:
+  cloud:
+    gateway:
+      mvc:
+        routes:
+          - id: company_microservice
+            uri: lb://company-microservice
+            predicates:
+              - Path=/companies/**
+          - id: job_microservice
+            uri: lb://job-microservice
+            predicates:
+              - Path=/jobs/**
+          - id: review_microservice
+            uri: lb://review-microservice
+            predicates:
+              - Path=/reviews/**
