@@ -1,6 +1,7 @@
 package io.nerdbyteslns.reviewms.review;
 
 
+import io.nerdbyteslns.reviewms.review.dto.CreateReviewDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +15,11 @@ import java.util.List;
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private final AggregateRatingService aggregateRatingService;
 
-    public ReviewController(ReviewService reviewService) {
+    public ReviewController(ReviewService reviewService, AggregateRatingService aggregateRatingService) {
         this.reviewService = reviewService;
+        this.aggregateRatingService = aggregateRatingService;
     }
 
     @GetMapping
@@ -25,8 +28,9 @@ public class ReviewController {
     }
 
     @PostMapping
-    public ResponseEntity<String> create(@RequestParam Long companyId, @RequestBody Review review) {
-        if (!reviewService.create(companyId, review)) {
+    public ResponseEntity<String> create(@RequestParam Long companyId, @RequestBody CreateReviewDto review) {
+        var response = reviewService.create(companyId, review);
+        if (response == null) {
             return ResponseEntity.badRequest().body("Company not found");
         }
         return ResponseEntity.ok("Review created successfully");
@@ -51,5 +55,14 @@ public class ReviewController {
             return ResponseEntity.ok("Review updated successfully");
         }
         return new ResponseEntity<>("Company not found", HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/averageRating/{companyId}")
+    public ResponseEntity<Double> getAverageReview(@PathVariable Long companyId) {
+        AggregateRating aggregateRating = aggregateRatingService.getAggregateRatingByCompanyId(companyId);
+        if (aggregateRating == null) {
+            return ResponseEntity.ok(0.0);
+        }
+        return ResponseEntity.ok(aggregateRating.getAverageRating());
     }
 }

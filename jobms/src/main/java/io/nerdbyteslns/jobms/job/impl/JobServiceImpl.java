@@ -2,6 +2,7 @@ package io.nerdbyteslns.jobms.job.impl;
 
 
 import feign.FeignException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.nerdbyteslns.jobms.external.Company;
 import io.nerdbyteslns.jobms.external.Review;
 import io.nerdbyteslns.jobms.job.Job;
@@ -37,6 +38,7 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
+    @CircuitBreaker(name = "companyBreaker", fallbackMethod = "companyBreakerFallback")
     public List<JobDto> findAll() {
         var jobs = jobRepository.findAll();
 
@@ -56,6 +58,11 @@ public class JobServiceImpl implements JobService {
             }
             return JobMapper.toJobDto(job, company, reviews);
         }).toList();
+    }
+
+    public List<JobDto> companyBreakerFallback(Exception e) {
+        System.out.println("Company service is down");
+        return jobRepository.findAll().stream().map(JobMapper::toJobDto).toList();
     }
 
     @Override

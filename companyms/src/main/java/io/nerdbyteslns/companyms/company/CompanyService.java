@@ -1,5 +1,7 @@
 package io.nerdbyteslns.companyms.company;
 
+import io.nerdbyteslns.companyms.company.dto.ReviewMessage;
+
 import java.util.List;
 
 public interface CompanyService {
@@ -8,4 +10,5 @@ public interface CompanyService {
     Company findById(Long id);
     boolean delete(Long id);
     boolean update(Long id, Company company);
+    void updateCompanyRating(ReviewMessage reviewMessage);
 }
